@@ -2,10 +2,17 @@ package gshell
 
 import (
   "fmt"
+  "strings"
 )
 
 func Ask(ask string, defaultResponse string) string {
-  response, err := baseShellRead(ask + " (default:" + defaultResponse + ")");
+  defaultPlaceholder := ""
+
+  if strings.TrimSpace(defaultResponse) != "" {
+    defaultPlaceholder = " (default:" + defaultResponse + ")"
+  }
+
+  response, err := baseShellRead(ask + defaultPlaceholder);
 
   if err != nil {
     return defaultResponse
@@ -22,7 +29,10 @@ func AskTilBlankEnter(ask string, repeatAlert string) []string {
     var response string
 
     response, err = baseShellRead(ask + " " + repeatAlert)
-    responseList = append(responseList, response)
+
+    if strings.TrimSpace(response) != "" {
+      responseList = append(responseList, response)
+    }
   }
 
   return responseList
