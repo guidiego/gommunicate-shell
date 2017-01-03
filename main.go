@@ -1,18 +1,18 @@
-package gshell
+package termput
 
 import (
   "fmt"
   "strings"
 )
 
-func Ask(ask string, defaultResponse string) string {
+func Input(placeholder string, defaultResponse string) string {
   defaultPlaceholder := ""
 
   if strings.TrimSpace(defaultResponse) != "" {
     defaultPlaceholder = " (default:" + defaultResponse + ")"
   }
 
-  response, err := baseShellRead(ask + defaultPlaceholder);
+  response, err := baseShellRead(placeholder + defaultPlaceholder);
 
   if err != nil {
     return defaultResponse
@@ -21,14 +21,14 @@ func Ask(ask string, defaultResponse string) string {
   return response
 }
 
-func AskTilBlankEnter(ask string, repeatAlert string) []string {
+func LoopInput(placeholder string, repeatAlert string) []string {
   var responseList []string;
   var err error;
 
   for err == nil {
     var response string
 
-    response, err = baseShellRead(ask + " " + repeatAlert)
+    response, err = baseShellRead(placeholder + " " + repeatAlert)
 
     if strings.TrimSpace(response) != "" {
       responseList = append(responseList, response)
@@ -38,10 +38,10 @@ func AskTilBlankEnter(ask string, repeatAlert string) []string {
   return responseList
 }
 
-func baseShellRead(ask string) (string, error) {
+func baseShellRead(placeholder string) (string, error) {
   var response string;
 
-  fmt.Println(ask)
+  fmt.Println(placeholder)
   _, err := fmt.Scanln(&response)
 
   return response, err
