@@ -1,48 +1,57 @@
 package termput
 
 import (
-  "fmt"
-  "strings"
+    "bufio"
+    "fmt"
+    "os"
 )
 
-func Input(placeholder string, defaultResponse string) string {
-  defaultPlaceholder := ""
-
-  if strings.TrimSpace(defaultResponse) != "" {
-    defaultPlaceholder = " (default:" + defaultResponse + ")"
-  }
-
-  response, err := baseShellRead(placeholder + defaultPlaceholder);
-
-  if err != nil {
-    return defaultResponse
-  }
-
-  return response
+type InputConfig struct {
+	DefaultValue string
+	Label 	         string
+	CustomLabel func()
 }
 
-func LoopInput(placeholder string, repeatAlert string) []string {
-  var responseList []string;
-  var err error;
+func Input(opts InputConfig) string {
+	scanner := bufio.NewScanner(os.Stdin)
 
-  for err == nil {
-    var response string
+	if opts.CustomLabel != nil {
+		opts.CustomLabel()
+	} else if opts.Label != "" {
+		fmt.Println(opts.Label)
+	} else {
+		fmt.Print(">> ")
+	}
 
-    response, err = baseShellRead(placeholder + " " + repeatAlert)
+	scanner.Scan()
+	s := scanner.Text()
 
-    if strings.TrimSpace(response) != "" {
-      responseList = append(responseList, response)
-    }
-  }
+	if s != "" {
+		return s
+	}
 
-  return responseList
+	return opts.DefaultValue
 }
 
-func baseShellRead(placeholder string) (string, error) {
-  var response string;
 
-  fmt.Println(placeholder)
-  _, err := fmt.Scanln(&response)
+func InputLoop(opts InputConfig) []string {
+	stringCache := []string{}
+	continueLoop := true
 
-  return response, err
+	for continueLoop {
+		response := Input(opts)
+
+		if response != opts.DefaultValue {
+			stringCache = append(stringCache, response)
+		} else {
+			continueLoop = false
+
+			if opts.DefaultValue != "" {
+				stringCache = append(stringCache, response)
+			}
+		}
+	}
+
+	return stringCache
 }
+
